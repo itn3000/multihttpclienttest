@@ -193,12 +193,24 @@ namespace multithreadedhttpclient_core
             Console.WriteLine($"all done");
         }
 
+        static HttpClient CreateHttpClient()
+        {
+            if (ConnectionLimit <= 0)
+            {
+                return new HttpClient();
+            }
+            else
+            {
+                return new HttpClient(new HttpClientHandler()
+                {
+                    MaxConnectionsPerServer = ConnectionLimit
+                });
+            }
+        }
+
         static async Task MutliThreadedHttpRequest()
         {
-            using (var client = new HttpClient(new HttpClientHandler()
-            {
-                MaxConnectionsPerServer = ConnectionLimit
-            }))
+            using (var client = CreateHttpClient())
             {
                 // Do 1000 concurrent tasks, loop 10 times
                 var tasks = Enumerable.Range(0, ConcurrentNum).Select(async idx =>
@@ -207,8 +219,8 @@ namespace multithreadedhttpclient_core
                     {
                         try
                         {
-                        // using singleton HttpClient
-                        await DoRequest(client, idx, i).ConfigureAwait(false);
+                            // using singleton HttpClient
+                            await DoRequest(client, idx, i).ConfigureAwait(false);
                         }
                         catch (Exception e)
                         {
@@ -260,8 +272,11 @@ namespace multithreadedhttpclient_core
             }
             ConcurrentNum = GetIntegerFromEnv("MTHC_CONCURRENT_NUM", 1000);
             LoopNum = GetIntegerFromEnv("MTHC_LOOP_NUM", 10);
-            ConnectionLimit = GetIntegerFromEnv("MTHC_CONNECTION_LIMIT", 10);
-            ServicePointManager.DefaultConnectionLimit = ConnectionLimit;
+            ConnectionLimit = GetIntegerFromEnv("MTHC_CONNECTION_LIMIT", -1);
+            if (ConnectionLimit > 0)
+            {
+                ServicePointManager.DefaultConnectionLimit = ConnectionLimit;
+            }
             using (var ctoken = new CancellationTokenSource())
             {
                 var svrtask = Task.Run(async () =>

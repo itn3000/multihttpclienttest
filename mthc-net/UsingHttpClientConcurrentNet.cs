@@ -267,7 +267,10 @@ namespace multithreadedhttpclient
             ConcurrentNum = GetIntegerFromEnv("MTHC_CONCURRENT_NUM", 1000);
             LoopNum = GetIntegerFromEnv("MTHC_LOOP_NUM", 10);
             ConnectionLimit = GetIntegerFromEnv("MTHC_CONNECTION_LIMIT", 10);
-            ServicePointManager.DefaultConnectionLimit = ConnectionLimit;
+            if (ConnectionLimit > 0)
+            {
+                ServicePointManager.DefaultConnectionLimit = ConnectionLimit;
+            }
             Console.WriteLine($"concurrent={ConcurrentNum}, loop={LoopNum}, limit={ConnectionLimit}");
             using (var ctoken = new CancellationTokenSource())
             {

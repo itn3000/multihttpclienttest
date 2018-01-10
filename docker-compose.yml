@@ -1,8 +1,8 @@
-version:"2.0"
+version: "2.0"
 services:
   mthc-core:
     build: mthc-core
-    environments:
+    environment:
       MTHC_LOOP_NUM: 100
       MTHC_CONCURRENT_NUM: 1000
       MTHC_CONNECTION_LIMIT: 10
@@ -10,9 +10,9 @@ services:
     command: ["dotnet","/bin/mthc/UsingHttpClientConcurrentCore.dll","2"]
   mthc-net:
     build: mthc-net
-    environments:
+    environment:
       MTHC_LOOP_NUM: 100
       MTHC_CONCURRENT_NUM: 1000
       MTHC_CONNECTION_LIMIT: 10
-    command: ["mono","/bin/mthc/UsingHttpClientConcurrentCore.exe","2"]
+    command: ["mono","/bin/mthc/UsingHttpClientConcurrentNet.exe","2"]
     

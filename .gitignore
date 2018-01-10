@@ -318,3 +318,4 @@ ASALocalRun/
 *.binlog
 
 .vscode/
+mthc-test-result-*
