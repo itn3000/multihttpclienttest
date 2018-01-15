@@ -302,7 +302,7 @@ namespace multithreadedhttpclient
                     }
                     ctoken.Cancel();
                     sw.Stop();
-                    Console.WriteLine($"elapsed: {sw.Elapsed}");
+                    Console.WriteLine($"net,elapsed,{method},{ConcurrentNum},{LoopNum},{ConnectionLimit},{sw.Elapsed}");
                 });
                 Task.WhenAll(svrtask, clienttask).Wait();
             }

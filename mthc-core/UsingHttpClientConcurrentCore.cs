@@ -310,7 +310,7 @@ namespace multithreadedhttpclient_core
                     }
                     ctoken.Cancel();
                     sw.Stop();
-                    Console.WriteLine($"elapsed: {sw.Elapsed}");
+                    Console.WriteLine($"core,elapsed,{method},{ConcurrentNum},{LoopNum},{ConnectionLimit},{sw.Elapsed}");
                 });
                 Task.WhenAll(svrtask, clienttask).Wait();
             }

@@ -1,0 +1,10 @@
+mthc-test-result-100-1.txt,elapsed: 00:00:31.0480111
+mthc-test-result-100-2.txt,elapsed: 00:00:08.7216359
+mthc-test-result-10-1.txt,elapsed: 00:00:28.7752199
+mthc-test-result-10-2.txt,elapsed: 00:00:06.6706491
+mthc-test-result-1-1.txt,elapsed: 00:00:27.5120648
+mthc-test-result-1-2.txt,elapsed: 00:00:42.0085351
+mthc-test-result-2-1.txt,elapsed: 00:00:37.0938276
+mthc-test-result-2-2.txt,elapsed: 00:00:14.8531721
+mthc-test-result-50-1.txt,elapsed: 00:00:35.5342193
+mthc-test-result-50-2.txt,elapsed: 00:00:07.7592248

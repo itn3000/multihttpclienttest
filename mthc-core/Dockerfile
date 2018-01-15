@@ -1,5 +1,8 @@
 FROM microsoft/dotnet:2.0-sdk
 
+ARG HTTP_PROXY
+ENv HTTP_PROXY ${HTTP_PROXY}
+
 ADD . /src
 
 WORKDIR /src

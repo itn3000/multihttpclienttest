@@ -11,6 +11,7 @@ $methods = @(
     2
 )
 $env:Logging:LogLevel:Microsoft="None"
+$env:MTHC_LOOP_NUM=100
 foreach($climit in $connectionLimits)
 {
     foreach($method in $methods)
