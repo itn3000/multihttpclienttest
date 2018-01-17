@@ -143,6 +143,7 @@ namespace multithreadedhttpclient
         static int LoopNum;
         static int ConcurrentNum;
         static int ConnectionLimit;
+        static string RequestUrl;
         // singleton HttpClient instance
         // executing POST request using HttpClient
         static async Task DoRequest(HttpClient c, int idx, int i)
@@ -154,7 +155,7 @@ namespace multithreadedhttpclient
             var data = Enumerable.Range(0, 10).Select(x => (byte)x).ToArray();
             using (var content = new ByteArrayContent(data))
             {
-                using (var res = await c.PostAsync("http://127.0.0.1:10001/MyModule/A", content).ConfigureAwait(false))
+                using (var res = await c.PostAsync(RequestUrl, content).ConfigureAwait(false))
                 {
                     res.EnsureSuccessStatusCode();
                 }
@@ -164,7 +165,7 @@ namespace multithreadedhttpclient
         // executing post request using HttpWebRequest
         static async Task DoRequestWeb()
         {
-            var req = WebRequest.CreateHttp("http://127.0.0.1:10001/MyModule/A");
+            var req = WebRequest.CreateHttp(RequestUrl);
             {
                 req.Method = "POST";
                 var data = Enumerable.Range(0, 10).Select(x => (byte)x).ToArray();
@@ -178,6 +179,22 @@ namespace multithreadedhttpclient
             }
         }
 
+        // executing post request using HttpWebRequest
+        static async Task DoRequestWebAsync()
+        {
+            var req = WebRequest.CreateHttp(RequestUrl);
+            {
+                req.Method = "POST";
+                var data = Enumerable.Range(0, 10).Select(x => (byte)x).ToArray();
+                using (var stm = req.GetRequestStream())
+                {
+                    await stm.WriteAsync(data, 0, data.Length).ConfigureAwait(false);
+                }
+                using (var res = await req.GetResponseAsync().ConfigureAwait(false))
+                {
+                }
+            }
+        }
         static async Task MultiThreadedHttpWebRequest()
         {
             // Do 1000 concurrent tasks, loop 10 times
@@ -189,7 +206,31 @@ namespace multithreadedhttpclient
                     try
                     {
                         // using HttpWebRequest
-                        await DoRequestWeb();
+                        await DoRequestWeb().ConfigureAwait(false);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine($"error({idx},{i}): {e}");
+                    }
+                    total++;
+                }
+                Console.WriteLine($"done{idx},{total}");
+            }).ToArray();
+            await Task.WhenAll(tasks).ConfigureAwait(false);
+            Console.WriteLine($"all done");
+        }
+        static async Task MultiThreadedHttpWebRequestAsync()
+        {
+            // Do 1000 concurrent tasks, loop 10 times
+            var tasks = Enumerable.Range(0, ConcurrentNum).Select(async idx =>
+            {
+                int total = 0;
+                for (int i = 0; i < LoopNum; i++)
+                {
+                    try
+                    {
+                        // using HttpWebRequest
+                        await DoRequestWebAsync().ConfigureAwait(false);
                     }
                     catch (Exception e)
                     {
@@ -267,6 +308,11 @@ namespace multithreadedhttpclient
             ConcurrentNum = GetIntegerFromEnv("MTHC_CONCURRENT_NUM", 1000);
             LoopNum = GetIntegerFromEnv("MTHC_LOOP_NUM", 10);
             ConnectionLimit = GetIntegerFromEnv("MTHC_CONNECTION_LIMIT", 10);
+            RequestUrl = Environment.GetEnvironmentVariable("MTHC_REQUEST_URL");
+            if(string.IsNullOrEmpty(RequestUrl))
+            {
+                RequestUrl = "http://127.0.0.1:10001/MyModule/A";
+            }
             if (ConnectionLimit > 0)
             {
                 ServicePointManager.DefaultConnectionLimit = ConnectionLimit;
@@ -295,6 +341,9 @@ namespace multithreadedhttpclient
                             break;
                         case 2:
                             await MutliThreadedHttpRequest().ConfigureAwait(false);
+                            break;
+                        case 3:
+                            await MultiThreadedHttpWebRequestAsync().ConfigureAwait(false);
                             break;
                         default:
                             await MultiThreadedHttpWebRequest().ConfigureAwait(false);

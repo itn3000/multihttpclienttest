@@ -1,6 +1,7 @@
 $connectionLimits = @(
     1,
     2,
+    5,
     10,
     50,
     100
@@ -8,7 +9,8 @@ $connectionLimits = @(
 $methods = @(
     0,
     1,
-    2
+    2,
+    3
 )
 $env:Logging:LogLevel:Microsoft="None"
 $env:MTHC_LOOP_NUM=100
