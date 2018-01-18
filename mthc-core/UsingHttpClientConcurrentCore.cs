@@ -169,6 +169,22 @@ namespace multithreadedhttpclient_core
                 }
             }
         }
+        // executing post request using HttpWebRequest
+        static async Task DoRequestWebAsync()
+        {
+            var req = WebRequest.CreateHttp("http://127.0.0.1:10001/MyModule/A");
+            {
+                req.Method = "POST";
+                var data = Enumerable.Range(0, 10).Select(x => (byte)x).ToArray();
+                using (var stm = req.GetRequestStream())
+                {
+                    await stm.WriteAsync(data, 0, data.Length).ConfigureAwait(false);
+                }
+                using (var res = await req.GetResponseAsync().ConfigureAwait(false))
+                {
+                }
+            }
+        }
 
         static async Task MultiThreadedHttpWebRequest()
         {
@@ -181,6 +197,28 @@ namespace multithreadedhttpclient_core
                     {
                         // using HttpWebRequest
                         await DoRequestWeb();
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine($"error({idx},{i}): {e}");
+                    }
+                }
+                Console.WriteLine($"done{idx}");
+            }).ToArray();
+            await Task.WhenAll(tasks).ConfigureAwait(false);
+            Console.WriteLine($"all done");
+        }
+        static async Task MultiThreadedHttpWebRequestAsync()
+        {
+            // Do 1000 concurrent tasks, loop 10 times
+            var tasks = Enumerable.Range(0, ConcurrentNum).Select(async idx =>
+            {
+                for (int i = 0; i < LoopNum; i++)
+                {
+                    try
+                    {
+                        // using HttpWebRequest
+                        await DoRequestWebAsync().ConfigureAwait(false);
                     }
                     catch (Exception e)
                     {
@@ -303,6 +341,9 @@ namespace multithreadedhttpclient_core
                             break;
                         case 2:
                             await MutliThreadedHttpRequest().ConfigureAwait(false);
+                            break;
+                        case 3:
+                            await MultiThreadedHttpWebRequestAsync().ConfigureAwait(false);
                             break;
                         default:
                             await MultiThreadedHttpWebRequest().ConfigureAwait(false);
