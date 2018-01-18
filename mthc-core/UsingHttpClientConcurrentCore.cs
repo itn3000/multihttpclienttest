@@ -196,7 +196,7 @@ namespace multithreadedhttpclient_core
                     try
                     {
                         // using HttpWebRequest
-                        await DoRequestWeb();
+                        await DoRequestWeb().ConfigureAwait(false);
                     }
                     catch (Exception e)
                     {
