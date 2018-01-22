@@ -25,6 +25,7 @@ namespace multithreadedhttpclient_core
             = new ConcurrentQueue<(Func<HttpClient, Task> f, TaskCompletionSource<int> c)>();
         public HttpClientFactory()
         {
+            m_Client.DefaultRequestHeaders.ConnectionClose = false;
             StartThread();
         }
         public Task Enqueue(Func<HttpClient, Task> f)

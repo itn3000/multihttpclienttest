@@ -19,6 +19,6 @@ foreach($climit in $connectionLimits)
     foreach($method in $methods)
     {
         $env:MTHC_CONNECTION_LIMIT=$climit
-        dotnet run -c Release $method > mthc-test-result-net-$climit-$method.txt
+        dotnet run -c Release $method
     }
 }

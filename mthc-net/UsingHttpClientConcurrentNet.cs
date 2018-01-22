@@ -32,6 +32,7 @@ namespace multithreadedhttpclient
             = new ConcurrentQueue<(Func<HttpClient, Task> f, TaskCompletionSource<int> c)>();
         public HttpClientFactory()
         {
+            m_Client.DefaultRequestHeaders.ConnectionClose = false;
             StartThread();
         }
         public Task Enqueue(Func<HttpClient, Task> f)
@@ -184,6 +185,7 @@ namespace multithreadedhttpclient
         {
             var req = WebRequest.CreateHttp(RequestUrl);
             {
+                req.KeepAlive = true;
                 req.Method = "POST";
                 var data = Enumerable.Range(0, 10).Select(x => (byte)x).ToArray();
                 using (var stm = req.GetRequestStream())
@@ -246,8 +248,10 @@ namespace multithreadedhttpclient
 
         static async Task MutliThreadedHttpRequest()
         {
-            using (var client = new HttpClient(new HttpClientHandler()))
+            using (var handler = new HttpClientHandler())
+            using (var client = new HttpClient(handler))
             {
+                client.DefaultRequestHeaders.ConnectionClose = false;
                 var tasks = Enumerable.Range(0, ConcurrentNum).Select(async idx =>
                 {
                     for (int i = 0; i < LoopNum; i++)
@@ -309,13 +313,14 @@ namespace multithreadedhttpclient
             LoopNum = GetIntegerFromEnv("MTHC_LOOP_NUM", 10);
             ConnectionLimit = GetIntegerFromEnv("MTHC_CONNECTION_LIMIT", 10);
             RequestUrl = Environment.GetEnvironmentVariable("MTHC_REQUEST_URL");
-            if(string.IsNullOrEmpty(RequestUrl))
+            if (string.IsNullOrEmpty(RequestUrl))
             {
                 RequestUrl = "http://127.0.0.1:10001/MyModule/A";
             }
             if (ConnectionLimit > 0)
             {
                 ServicePointManager.DefaultConnectionLimit = ConnectionLimit;
+                ServicePointManager.SetTcpKeepAlive(true, 60, 60);
             }
             Console.WriteLine($"concurrent={ConcurrentNum}, loop={LoopNum}, limit={ConnectionLimit}");
             using (var ctoken = new CancellationTokenSource())
