@@ -168,6 +168,7 @@ namespace multithreadedhttpclient
         {
             var req = WebRequest.CreateHttp(RequestUrl);
             {
+                req.KeepAlive = true;
                 req.Method = "POST";
                 var data = Enumerable.Range(0, 10).Select(x => (byte)x).ToArray();
                 using (var stm = req.GetRequestStream())
@@ -187,6 +188,7 @@ namespace multithreadedhttpclient
             {
                 req.KeepAlive = true;
                 req.Method = "POST";
+                req.ProtocolVersion = HttpVersion.Version11;
                 var data = Enumerable.Range(0, 10).Select(x => (byte)x).ToArray();
                 using (var stm = req.GetRequestStream())
                 {
@@ -252,6 +254,7 @@ namespace multithreadedhttpclient
             using (var client = new HttpClient(handler))
             {
                 client.DefaultRequestHeaders.ConnectionClose = false;
+                client.DefaultRequestHeaders.Connection.Add("Keep-Alive");
                 var tasks = Enumerable.Range(0, ConcurrentNum).Select(async idx =>
                 {
                     for (int i = 0; i < LoopNum; i++)
